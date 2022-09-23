@@ -28,14 +28,11 @@ public class NavBarContainer extends JPanel {
 
 	private void init() {
 		JPanel panel = new JPanel();
-		panel.setOpaque(true);
-		panel.setBackground(Color.LIGHT_GRAY);
-		this.setOpaque(true);
-		this.setBackground(Color.LIGHT_GRAY);
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx = 0;
 		c.gridy = 0;
+		c.weightx = 0.2;
 		for (NavButtonContainer container : this.navButton) {
 			add(container, c);
 			c.gridx = c.gridx + 1;

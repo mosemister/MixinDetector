@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Specification-Title: Mixin Detector
+Specification-Vendor: Mosemister
+Main-Class: org.mixindetector.MixinDetectorMain

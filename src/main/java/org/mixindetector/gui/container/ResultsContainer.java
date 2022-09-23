@@ -30,8 +30,19 @@ public class ResultsContainer extends JPanel {
 		this.files.parallelStream().filter(this.filters).forEach(mf -> add(new MixinFileContainer(mf)));
 	}
 
+	@Override
+	public void repaint() {
+		this.removeAll();
+		if (this.files != null) {
+			this.files.parallelStream().filter(this.filters).forEach(mf -> add(new MixinFileContainer(mf)));
+
+		}
+	}
+
 	public void setFilters(Predicate<MixinFile> predicate) {
 		this.filters = predicate;
+		this.repaint();
+		this.revalidate();
 	}
 
 	public void removeFilters() {

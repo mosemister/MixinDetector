@@ -3,10 +3,12 @@ package org.mixindetector.gui.screen;
 import org.mixindetector.MixinFile;
 import org.mixindetector.gui.container.ResultsContainer;
 import org.mixindetector.gui.container.nav.NavBarContainer;
+import org.mixindetector.gui.container.nav.NavButtonContainer;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Collection;
+import java.util.function.Predicate;
 
 public class ResultsScreen extends JPanel {
 
@@ -14,10 +16,23 @@ public class ResultsScreen extends JPanel {
 	private final NavBarContainer nav;
 
 	public ResultsScreen(Collection<MixinFile> collection) {
-		this.nav = new NavBarContainer();
+		this.nav =
+				new NavBarContainer(
+						new NavButtonContainer("With File", () -> {
+							String fileName =
+									JOptionPane.showInputDialog(ResultsScreen.this, "File name").toLowerCase();
+							setFilter(file -> file.getMixinFileNames()
+									.parallelStream()
+									.anyMatch(name -> name.toLowerCase().startsWith(fileName)));
+						}),
+						new NavButtonContainer("Any Mixins", () -> setFilter(ResultsContainer.ANY_MIXIN)));
 		this.container = new ResultsContainer(collection);
 		init();
 
+	}
+
+	private void setFilter(Predicate<MixinFile> predicate) {
+		this.container.setFilters(predicate);
 	}
 
 	private void init() {
