@@ -9,12 +9,18 @@ public class MixinFileContainer extends JPanel {
 
 	private final MixinFile file;
 
+	private final JPanel fileNames;
+
 	public MixinFileContainer(MixinFile file) {
 		this.file = file;
+		this.fileNames = new JPanel();
 		init();
 	}
 
 	private void init() {
+		this.fileNames.setLayout(new GridLayout(this.file.getMixinFileNames().size(), 1));
+		this.file.getMixinFileNames().forEach(name -> this.fileNames.add(new JLabel(name)));
+
 		boolean hasMixinFolder = this.file.hasMixinsFolder();
 		JLabel hasMixinFolderLabel = new JLabel("Has Mixins Folder:");
 		hasMixinFolderLabel.setOpaque(true);
@@ -33,5 +39,16 @@ public class MixinFileContainer extends JPanel {
 		c.weightx = 0;
 		c.weighty = 0;
 		add(hasMixinFolderLabel, c);
+		c.gridy = 2;
+		c.weighty = 1.0;
+		add(this.fileNames, c);
+	}
+
+	public boolean isShowingFiles() {
+		return this.fileNames.isVisible();
+	}
+
+	public void setShowingFiles(boolean check) {
+		this.fileNames.setVisible(check);
 	}
 }

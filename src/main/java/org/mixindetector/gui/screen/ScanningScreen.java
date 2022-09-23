@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -51,7 +52,18 @@ public class ScanningScreen extends JPanel {
 			JarFile jar = null;
 			try {
 				jar = new JarFile(modFile);
-				System.out.println(jar.stream().map(ZipEntry::getName).collect(Collectors.joining("\n")));
+
+				List<String> mixinFiles = jar.stream()
+						.map(ZipEntry::getName)
+						.filter(name -> name.endsWith(".json"))
+						.filter(name -> {
+							System.out.println(name);
+							return name.startsWith("mixins.");
+						})
+						.collect(Collectors.toList());
+				mixinFile.setMixinFileNames(mixinFiles);
+
+
 				ZipEntry entry = jar.getEntry("org/spongepowered/common/mixin");
 				System.out.println("Entry: " + entry);
 				if (entry == null) {
@@ -59,7 +71,6 @@ public class ScanningScreen extends JPanel {
 				}
 				System.out.println(this.modsFolder.getAbsolutePath());
 				mixinFile.setHasMixinsFolder(true);
-				this.files.add(mixinFile);
 			} catch (IOException e) {
 			}
 			bar.setMaximum(100);

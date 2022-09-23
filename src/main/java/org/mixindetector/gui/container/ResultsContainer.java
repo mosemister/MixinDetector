@@ -13,10 +13,15 @@ public class ResultsContainer extends JPanel {
 	private Predicate<MixinFile> filters;
 
 	public static final Predicate<MixinFile> NO_FILTERS = (file) -> true;
+	public static final Predicate<MixinFile> WITH_MIXINS_FILES = (file) -> !file.getMixinFileNames().isEmpty();
+	public static final Predicate<MixinFile> WITH_MIXIN_FOLDER = MixinFile::hasMixinsFolder;
+	public static final Predicate<MixinFile> ANY_MIXIN =
+			(file) -> WITH_MIXINS_FILES.test(file) || WITH_MIXIN_FOLDER.test(file);
+
 
 	public ResultsContainer(Collection<MixinFile> files) {
 		this.files = files;
-		this.filters = NO_FILTERS;
+		this.filters = ANY_MIXIN;
 		init();
 	}
 

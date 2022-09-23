@@ -3,7 +3,6 @@ package org.mixindetector.gui.screen;
 import org.mixindetector.MixinFile;
 import org.mixindetector.gui.container.ResultsContainer;
 import org.mixindetector.gui.container.nav.NavBarContainer;
-import org.mixindetector.gui.container.nav.NavButtonContainer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,7 +14,7 @@ public class ResultsScreen extends JPanel {
 	private final NavBarContainer nav;
 
 	public ResultsScreen(Collection<MixinFile> collection) {
-		this.nav = new NavBarContainer(new NavButtonContainer("Test", () -> {}));
+		this.nav = new NavBarContainer();
 		this.container = new ResultsContainer(collection);
 		init();
 
@@ -32,7 +31,7 @@ public class ResultsScreen extends JPanel {
 		this.add(this.nav, c);
 		c.gridy = 1;
 		c.weighty = 1.0;
-		this.add(this.container, c);
+		this.add(new JScrollPane(this.container), c);
 
 	}
 }
