@@ -36,6 +36,8 @@ public class ResultsScreen extends JPanel {
 
 	private void setFilter(Predicate<MixinFile> predicate) {
 		this.container.setFilters(predicate);
+		this.container.repaint();
+		this.container.revalidate();
 	}
 
 	private void init() {

@@ -4,6 +4,7 @@ import org.mixindetector.MixinFile;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.Predicate;
 
@@ -11,6 +12,7 @@ public class ResultsContainer extends JPanel {
 
 	private final Collection<MixinFile> files;
 	private Predicate<MixinFile> filters;
+	private Predicate<MixinFile> displayedFilter;
 
 	public static final Predicate<MixinFile> NO_FILTERS = (file) -> true;
 	public static final Predicate<MixinFile> WITH_MIXINS_FILES = (file) -> !file.getMixinFileNames().isEmpty();
@@ -36,17 +38,20 @@ public class ResultsContainer extends JPanel {
 
 	@Override
 	public void repaint() {
-		this.removeAll();
-		if (this.files != null) {
-			this.files.parallelStream().filter(this.filters).forEach(mf -> add(new MixinFileContainer(mf)));
-
+		if (this.displayedFilter != this.filters) {
+			if (this.files != null) {
+				Arrays.stream(this.getComponents())
+						.filter(component -> component instanceof MixinFileContainer)
+						.forEach(this::remove);
+				this.files.stream().filter(this.filters).forEach(mf -> add(new MixinFileContainer(mf)));
+				this.displayedFilter = this.filters;
+			}
 		}
+		super.repaint();
 	}
 
 	public void setFilters(Predicate<MixinFile> predicate) {
 		this.filters = predicate;
-		this.repaint();
-		this.revalidate();
 	}
 
 	public void removeFilters() {

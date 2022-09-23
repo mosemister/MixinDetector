@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.jar.JarFile;
@@ -17,73 +18,79 @@ import java.util.zip.ZipEntry;
 public class ScanningScreen extends JPanel {
 
 	private final File modsFolder;
-	private final JPanel progressBarsPanel = new JPanel();
+	private final JProgressBar bar;
 
 	private LinkedBlockingQueue<MixinFile> files = new LinkedBlockingQueue<>();
 
 
 	public ScanningScreen(File modsFolder) {
 		this.modsFolder = modsFolder;
+		this.bar = new JProgressBar();
 		init();
 	}
 
 	private void init() {
+		bar.setStringPainted(true);
 		File[] mods = this.modsFolder.listFiles(pathname -> pathname.getName().endsWith(".jar"));
 		if (mods == null) {
 			throw new RuntimeException("Checks for mods were not performed");
 		}
+		bar.setMaximum(mods.length);
 		setLayout(new GridLayout(1, 1));
-		this.progressBarsPanel.setLayout(new GridLayout(mods.length, 1));
-		add(new JScrollPane(this.progressBarsPanel));
-		new Thread(() -> run(mods)).start();
+		add(this.bar);
+		Thread thread = new Thread(() -> run(mods));
+		thread.start();
 
 	}
 
 	private void run(File[] mods) {
-		Stream.of(mods).parallel().forEach(modFile -> {
-			JProgressBar bar = new JProgressBar();
-			MixinFile mixinFile = new MixinFile(modFile);
-			bar.setString(modFile.getName());
-			bar.setStringPainted(true);
-			progressBarsPanel.add(bar);
-			progressBarsPanel.revalidate();
-			progressBarsPanel.repaint();
-
-			JarFile jar = null;
+		Stream.of(mods).forEach(modFile -> {
 			try {
-				jar = new JarFile(modFile);
+				MixinFile mixinFile = new MixinFile(modFile);
+				JarFile jar = null;
+				try {
+					jar = new JarFile(modFile);
 
-				List<String> mixinFiles = jar.stream()
-						.map(ZipEntry::getName)
-						.filter(name -> name.endsWith(".json"))
-						.filter(name -> name.startsWith("mixins."))
-						.collect(Collectors.toList());
-				mixinFile.setMixinFileNames(mixinFiles);
+					List<String> mixinFiles = jar.stream()
+							.map(ZipEntry::getName)
+							.filter(name -> name.endsWith(".json"))
+							.filter(name -> name.startsWith("mixins."))
+							.collect(Collectors.toList());
+					mixinFile.setMixinFileNames(mixinFiles);
 
 
-				ZipEntry entry = jar.getEntry("org/spongepowered/common/mixin");
-				if (entry != null) {
-					mixinFile.setHasMixinsFolder(true);
+					ZipEntry entry = jar.getEntry("org/spongepowered/common/mixin");
+					if (entry != null) {
+						mixinFile.setHasMixinsFolder(true);
+
+					}
+				} catch (IOException e) {
+				}
+				bar.setValue(bar.getValue() + 1);
+				this.files.add(mixinFile);
+				try {
+					if (jar != null) {
+						jar.close();
+					}
+				} catch (IOException e) {
 
 				}
-			} catch (IOException e) {
-			}
-			bar.setMaximum(100);
-			bar.setMinimum(0);
-			bar.setValue(100);
-			this.files.add(mixinFile);
-			try {
-				if (jar != null) {
-					jar.close();
-				}
-			} catch (IOException e) {
-
+			} catch (Throwable e) {
+				JOptionPane.showInternalMessageDialog(null, e.getMessage(), Arrays.stream(e.getStackTrace())
+						.map(element -> element.getLineNumber()
+								+ " : "
+								+ element.getClassName()
+								+ " : "
+								+ element.getMethodName())
+						.collect(Collectors.joining("\n")), JOptionPane.ERROR_MESSAGE);
 			}
 		});
 
-		JFrame frame = MixinDetectorMain.getInstance().getFrame();
-		frame.setContentPane(new ResultsScreen(this.modsFolder, this.files));
-		frame.repaint();
-		frame.revalidate();
+		new Thread(() -> {
+			JFrame frame = MixinDetectorMain.getInstance().getFrame();
+			frame.setContentPane(new ResultsScreen(this.modsFolder, this.files));
+			frame.repaint();
+			frame.revalidate();
+		}).start();
 	}
 }
