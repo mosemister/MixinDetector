@@ -56,21 +56,16 @@ public class ScanningScreen extends JPanel {
 				List<String> mixinFiles = jar.stream()
 						.map(ZipEntry::getName)
 						.filter(name -> name.endsWith(".json"))
-						.filter(name -> {
-							System.out.println(name);
-							return name.startsWith("mixins.");
-						})
+						.filter(name -> name.startsWith("mixins."))
 						.collect(Collectors.toList());
 				mixinFile.setMixinFileNames(mixinFiles);
 
 
 				ZipEntry entry = jar.getEntry("org/spongepowered/common/mixin");
-				System.out.println("Entry: " + entry);
-				if (entry == null) {
-					return;
+				if (entry != null) {
+					mixinFile.setHasMixinsFolder(true);
+
 				}
-				System.out.println(this.modsFolder.getAbsolutePath());
-				mixinFile.setHasMixinsFolder(true);
 			} catch (IOException e) {
 			}
 			bar.setMaximum(100);
@@ -87,7 +82,7 @@ public class ScanningScreen extends JPanel {
 		});
 
 		JFrame frame = MixinDetectorMain.getInstance().getFrame();
-		frame.setContentPane(new ResultsScreen(this.files));
+		frame.setContentPane(new ResultsScreen(this.modsFolder, this.files));
 		frame.repaint();
 		frame.revalidate();
 	}

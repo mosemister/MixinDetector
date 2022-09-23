@@ -25,6 +25,10 @@ public class ResultsContainer extends JPanel {
 		init();
 	}
 
+	public Collection<MixinFile> getAllFiles() {
+		return this.files;
+	}
+
 	private void init() {
 		setLayout(new GridLayout(this.files.size(), 1));
 		this.files.parallelStream().filter(this.filters).forEach(mf -> add(new MixinFileContainer(mf)));

@@ -18,6 +18,8 @@ public class MixinFileContainer extends JPanel {
 	}
 
 	private void init() {
+		this.setFocusable(true);
+
 		this.fileNames.setLayout(new GridLayout(this.file.getMixinFileNames().size(), 1));
 		this.file.getMixinFileNames().forEach(name -> this.fileNames.add(new JLabel(name)));
 
