@@ -23,7 +23,7 @@ jobs:
       - name: Build with Maven
         run: mvn -B package --file pom.xml
       - name: Move to folder
-        run: mv MixinDetector-1.0-SNAPSHOT.jar MixinDetector.jar
+        run: mv target/MixinDetector-1.0-SNAPSHOT.jar target/MixinDetector.jar
       - name: Upload Jar
         uses: xresloader/upload-to-github-release@v1
         env:
@@ -44,7 +44,7 @@ jobs:
           cache: maven
       - name: Build with Maven
         run: mvn -B package --file pom.xml
-      - name: Upload Jar
+      - name: Upload Exe
         uses: xresloader/upload-to-github-release@v1
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
