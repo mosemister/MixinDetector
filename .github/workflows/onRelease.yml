@@ -9,10 +9,9 @@ on:
     
 
 jobs:
-  build:
-
+  jar:
+    name: Build and upload Jar
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     - name: Set up JDK 8
@@ -23,6 +22,8 @@ jobs:
         cache: maven
     - name: Build with Maven
       run: mvn -B package --file pom.xml
+    - name: Move to folder
+      run: mv MixinDetector-1.0-SNAPSHOT.jar MixinDetector.jar
     - name: Upload Jar
       uses: xresloader/upload-to-github-release@v1
       env:
@@ -30,6 +31,6 @@ jobs:
       with:
         file: "target/*.jar"
         release_id: ${{github.event.release.id}}
-        
+    
       
     
