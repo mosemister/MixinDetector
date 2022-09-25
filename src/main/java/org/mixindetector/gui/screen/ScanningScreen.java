@@ -54,7 +54,7 @@ public class ScanningScreen extends JPanel {
 					List<String> mixinFiles = jar.stream()
 							.map(ZipEntry::getName)
 							.filter(name -> name.endsWith(".json"))
-							.filter(name -> name.startsWith("mixins."))
+							.filter(name -> name.contains("mixins."))
 							.collect(Collectors.toList());
 					mixinFile.setMixinFileNames(mixinFiles);
 
