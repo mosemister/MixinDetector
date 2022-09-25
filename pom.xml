@@ -9,6 +9,60 @@
     <version>1.0-SNAPSHOT</version>
     <build>
         <plugins>
+          <plugin>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>assembly</id>
+              <phase>package</phase>
+              <goals><goal>single</goal></goals>
+              <configuration>
+                <descriptors>
+                  <descriptor>assembly.xml</descriptor>
+                </descriptors>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+          <plugin>
+          <groupId>com.akathist.maven.plugins.launch4j</groupId>
+          <artifactId>launch4j-maven-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>l4j-clui</id>
+              <phase>package</phase>
+              <goals><goal>launch4j</goal></goals>
+              <configuration>
+                <headerType>console</headerType>
+                <outfile>target/MixinDetector.exe</outfile>
+                <jar>target/MixinDetector-1.0-SNAPSHOT.jar</jar>
+                <errTitle>mixindetector</errTitle>
+                <classPath>
+                  <mainClass>org.mixindetector.MixinDetectorMain</mainClass>
+                  <addDependencies>true</addDependencies>
+                  <preCp>anything</preCp>
+                </classPath>
+                <jre>
+                  <minVersion>1.8.0</minVersion>
+                  <opts>
+                    <opt>-Djava.endorsed.dirs=./endorsed</opt>
+                  </opts>
+                </jre>
+                <versionInfo>
+                  <fileVersion>1.0.0.0</fileVersion>
+                  <txtFileVersion>1.0.0</txtFileVersion>
+                  <fileDescription>Detectors Mixins</fileDescription>
+                  <copyright>All Rights</copyright>
+                  <productVersion>1.0.0.0</productVersion>
+                  <txtProductVersion>1.0.0</txtProductVersion>
+                  <productName>MixinDetector</productName>
+                  <internalName>mixindetector</internalName>
+                  <originalFilename>MixinDetector.exe</originalFilename>
+                </versionInfo>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
