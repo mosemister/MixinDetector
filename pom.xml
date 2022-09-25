@@ -40,7 +40,7 @@
                 <errTitle>mixindetector</errTitle>
                 <classPath>
                   <mainClass>org.mixindetector.MixinDetectorMain</mainClass>
-                  <addDependencies>true</addDependencies>
+                  <addDependencies>false</addDependencies>
                   <preCp>anything</preCp>
                 </classPath>
                 <jre>
