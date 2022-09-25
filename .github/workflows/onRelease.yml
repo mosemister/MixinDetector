@@ -1,0 +1,58 @@
+# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: On Release
+
+on:
+  release:
+    types:
+      - created
+  workflow_dispatch:
+
+
+jobs:
+  jar:
+    name: Build and upload Jar
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 8
+        uses: actions/setup-java@v3
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+          cache: maven
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+      - name: Move to folder
+        run: mv target/MixinDetector-1.0-SNAPSHOT.jar target/MixinDetector.jar
+      - name: Upload Jar
+        uses: xresloader/upload-to-github-release@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          file: "target/*.jar"
+          release_id: ${{github.event.release.id}}
+  windows:
+    name: Build and upload exe
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 8
+        uses: actions/setup-java@v3
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+          cache: maven
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+      - name: Upload Exe
+        uses: xresloader/upload-to-github-release@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          file: "target/*.exe"
+          release_id: ${{github.event.release.id}}
+    
+      
+    
