@@ -5,10 +5,10 @@
     <formats>
         <format>zip</format>
     </formats>
-    <includeBaseDirectory>false</includeBaseDirectory>
+    <includeBaseDirectory>true</includeBaseDirectory>
     <fileSets>
         <fileSet>
-            <directory>${project.build.directory}/package</directory>
+            <directory>${project.build.directory}/target</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
                 <include>*.exe</include>
