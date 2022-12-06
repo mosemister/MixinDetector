@@ -98,7 +98,7 @@ public class SelectFolderScreen extends JPanel {
         c.weightx = 1.0;
         c.weighty = 0;
         c.gridwidth = 2;
-        add(new JLabel("Test"), c);
+        add(new JLabel("Select your forge mods folder"), c);
         c.gridy = 1;
         c.gridwidth = 1;
         add(this.folderPath, c);

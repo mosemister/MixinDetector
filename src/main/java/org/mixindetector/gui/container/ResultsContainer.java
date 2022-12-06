@@ -1,29 +1,28 @@
 package org.mixindetector.gui.container;
 
 import org.mixindetector.MixinFile;
+import org.mixindetector.gui.container.filter.FilterContainer;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.function.Predicate;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ResultsContainer extends JPanel {
 
 	private final Collection<MixinFile> files;
-	private Predicate<MixinFile> filters;
-	private Predicate<MixinFile> displayedFilter;
-
-	public static final Predicate<MixinFile> NO_FILTERS = (file) -> true;
-	public static final Predicate<MixinFile> WITH_MIXINS_FILES = (file) -> !file.getMixinFileNames().isEmpty();
-	public static final Predicate<MixinFile> WITH_MIXIN_FOLDER = MixinFile::hasMixinsFolder;
-	public static final Predicate<MixinFile> ANY_MIXIN =
-			(file) -> WITH_MIXINS_FILES.test(file) || WITH_MIXIN_FOLDER.test(file);
+	private final Collection<MixinFileContainer> displaying = new LinkedList<>();
+	private final FilterContainer filterPanel;
+	private final JPanel resultsPanel;
 
 
 	public ResultsContainer(Collection<MixinFile> files) {
 		this.files = files;
-		this.filters = ANY_MIXIN;
+		this.resultsPanel = new JPanel();
+		this.filterPanel = new FilterContainer(this::updateFilters);
 		init();
 	}
 
@@ -31,30 +30,39 @@ public class ResultsContainer extends JPanel {
 		return this.files;
 	}
 
+	private void updateFilters(){
+		Arrays
+				.stream(this.resultsPanel.getComponents())
+				.filter(com -> com instanceof MixinFileContainer)
+				.forEach(this.resultsPanel::remove);
+
+		List<MixinFileContainer> filtered = this
+				.displaying
+				.stream()
+				.filter(container -> !this
+						.filterPanel
+						.willFilter(container.getMixinFile()))
+				.collect(Collectors.toList());
+
+		filtered.forEach(this.resultsPanel::add);
+		this.resultsPanel.setLayout(new GridLayout(filtered.size(), 1));
+	}
+
 	private void init() {
-		setLayout(new GridLayout(this.files.size(), 1));
-		this.files.parallelStream().filter(this.filters).forEach(mf -> add(new MixinFileContainer(mf)));
-	}
+		this.displaying.addAll(this.files.parallelStream().map(MixinFileContainer::new).collect(Collectors.toList()));
+		this.resultsPanel.setLayout(new GridLayout(this.files.size(), 1));
+		this.displaying.forEach(this.resultsPanel::add);
 
-	@Override
-	public void repaint() {
-		if (this.displayedFilter != this.filters) {
-			if (this.files != null) {
-				Arrays.stream(this.getComponents())
-						.filter(component -> component instanceof MixinFileContainer)
-						.forEach(this::remove);
-				this.files.stream().filter(this.filters).forEach(mf -> add(new MixinFileContainer(mf)));
-				this.displayedFilter = this.filters;
-			}
-		}
-		super.repaint();
-	}
-
-	public void setFilters(Predicate<MixinFile> predicate) {
-		this.filters = predicate;
-	}
-
-	public void removeFilters() {
-		this.filters = NO_FILTERS;
+		this.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx = 0;
+		c.gridy = 0;
+		c.weighty = 0;
+		c.weightx = 1.0;
+		c.fill = GridBagConstraints.BOTH;
+		this.add(this.filterPanel, c);
+		c.gridy = 1;
+		c.weighty = 1.0;
+		this.add(new JScrollPane(this.resultsPanel), c);
 	}
 }

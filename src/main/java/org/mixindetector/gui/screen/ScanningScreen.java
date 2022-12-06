@@ -36,8 +36,16 @@ public class ScanningScreen extends JPanel {
 			throw new RuntimeException("Checks for mods were not performed");
 		}
 		bar.setMaximum(mods.length);
-		setLayout(new GridLayout(1, 1));
-		add(this.bar);
+		setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.weighty = 0;
+		c.weightx = 0;
+		c.gridx = 0;
+		c.gridy = 0;
+		add(new JLabel("Searching for mixins in mods"), c);
+		c.gridx = 1;
+		c.weighty = 1.0;
+		add(this.bar, c);
 		Thread thread = new Thread(() -> run(mods));
 		thread.start();
 
