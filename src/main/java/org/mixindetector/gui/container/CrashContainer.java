@@ -9,10 +9,9 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public class CrashContainer extends JPanel {
 
@@ -21,7 +20,7 @@ public class CrashContainer extends JPanel {
     private final Consumer<String> onSelect;
     private final Collection<String> mixinFiles = new LinkedList<>();
 
-    public CrashContainer(Collection<String> mixinFiles, Consumer<String> onSelect){
+    public CrashContainer(Collection<String> mixinFiles, Consumer<String> onSelect) {
         this.crashReport = new JTextArea();
         this.results = new JPanel();
         this.onSelect = onSelect;
@@ -29,14 +28,12 @@ public class CrashContainer extends JPanel {
         init();
     }
 
-    private void init(){
+    private void init() {
         this.crashReport.setEditable(true);
         this.crashReport.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
-                new Thread(() -> {
-                    onTextEntered();
-                }).start();
+                new Thread(() -> onTextEntered()).start();
             }
         });
         this.crashReport.setBorder(new TitledBorder(new LineBorder(Color.LIGHT_GRAY), "Crash report"));
@@ -53,28 +50,31 @@ public class CrashContainer extends JPanel {
         add(new JScrollPane(this.results), c);
     }
 
-    private void onTextEntered(){
+    private void onTextEntered() {
         Arrays.stream(this.results.getComponents()).filter(com -> com instanceof JPanel).forEach(this.results::remove);
 
         String text = this.crashReport.getText();
         List<String> mixinFile = new LinkedList<>();
 
         int start = 0;
-        for(int end = 0; end < text.length(); end++){
+        for (int end = 0; end < text.length(); end++) {
             String subString = text.substring(start, end);
-            if (subString.endsWith(".json")){
-                Optional<String> opFile = this.mixinFiles.parallelStream().filter(file -> subString.toLowerCase().endsWith(file.toLowerCase())).findAny();
-                if(!opFile.isPresent()){
+            if (subString.endsWith(".json")) {
+                Optional<String> opFile = this.mixinFiles
+                        .parallelStream()
+                        .filter(file -> subString.toLowerCase().endsWith(file.toLowerCase()))
+                        .findAny();
+                if (!opFile.isPresent()) {
                     continue;
                 }
                 String file = opFile.get();
 
-                if(mixinFile.contains(file)){
+                if (mixinFile.contains(file)) {
                     start = end + 1;
                     continue;
                 }
                 int before = Math.max(start - 4, 0);
-                if (text.substring(before, end).startsWith("APP:")){
+                if (text.substring(before, end).startsWith("APP:")) {
                     //the app: shows all mixins, ignore this
                     continue;
                 }
@@ -91,20 +91,20 @@ public class CrashContainer extends JPanel {
                 panel.addMouseListener(new MouseAdapter() {
                     @Override
                     public void mouseClicked(MouseEvent e) {
-onSelect.accept(file);
+                        onSelect.accept(file);
                     }
                 });
                 mixinFile.add(file);
 
-    start = end + 1;
-    continue;
+                start = end + 1;
+                continue;
             }
             char at = text.charAt(end);
-            if(at == ' ' || at == ':'){
+            if (at == ' ' || at == ':') {
                 start = end + 1;
             }
         }
-        if(mixinFile.isEmpty()){
+        if (mixinFile.isEmpty()) {
             return;
         }
         this.results.repaint();
